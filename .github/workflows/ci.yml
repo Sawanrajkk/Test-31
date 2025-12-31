@@ -1,0 +1,43 @@
+name: Run All Pytests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # ⭐ Correct Chrome installation
+      - name: Install Google Chrome
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y google-chrome-stable
+
+      # ⭐ Install ChromeDriver matching installed Chrome
+      - name: Install ChromeDriver
+        uses: nanasess/setup-chromedriver@v2
+
+      # ⭐ Add inner directory (HPSHOP) to Python path
+      - name: Add project to PYTHONPATH
+        run: echo "PYTHONPATH=$(pwd)/HPSHOP" >> $GITHUB_ENV
+
+      # ⭐ Run tests in headless mode
+      - name: Run Pytests
+        run: |
+          pytest -q
